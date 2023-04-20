@@ -39,16 +39,12 @@ export class Particle {
 }
 
 export class ParticlePool {
-	static #idCounter;
-
-	static {
-		ParticlePool.idCounter = 0;
-	}
+	static #idCounter = 0;
 
 	particles = new Map();
 
 	registerParticle(particle) {
-		particle.id = ++ParticlePool.idCounter;
+		particle.id = ++ParticlePool.#idCounter;
 		this.particles.set(particle.id, particle);
 		return particle;
 	}
