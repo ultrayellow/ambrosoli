@@ -1,0 +1,30 @@
+* {
+	padding: 0;
+	margin: 0;
+}
+
+#stage {
+	width: 480px;
+	height: 320px;
+	position: relative;
+	border: 2px solid rgb(255, 255, 0);
+}
+
+canvas {
+	position: absolute;
+	display: block;
+	margin: 0 auto;
+}
+
+#ui-layer {
+	z-index: 3;
+}
+
+#game-layer {
+	z-index: 2;
+}
+
+#background-layer {
+	z-index: 1;
+	background: #2a2a2a;
+}
