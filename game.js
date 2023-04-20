@@ -10,12 +10,12 @@ class Game {
 	layer_game;
 	layer_background;
 
-	width;
-	height;
-
 	ui;
 	ctx;
 	bg;
+
+	width;
+	height;
 
 	ball = {
 		x: 100,
@@ -31,25 +31,39 @@ class Game {
 			ctx.fillStyle = this.color;
 			ctx.fill();
 		},
-		updateMomentum(t, dt, width, height) {
+		update(t, dt) {
 			let strategy1 = new DisappearParticleStrategy(0.99);
 			let strategy2 = new DelayedDisappearParticleStrategy(0.95, 200);
 
 			game.particles.registerParticle(new Particle(this.x, this.y, this.vx / 5, this.vy / 5, this.radius / 2, "red", strategy1));
 			game.particles.registerParticle(new Particle(this.x, this.y, this.vx / 3, this.vy / 3, this.radius / 3, "#faa", strategy1));
 			game.particles.registerParticle(new Particle(this.x, this.y, this.vx / 2, this.vy / 2, this.radius / 5, "#fee", strategy1));
+			this.vy += 0.001 * dt;
 			this.x += this.vx * dt;
 			this.y += this.vy * dt;
 
-			if (this.y + this.radius >= height || this.y - this.radius <= 0) {
-				game.particles.registerParticle(new Particle(this.x, this.y, -this.vx, -this.vy, this.radius / 7, "lime", strategy2));
-				this.vy = -this.vy * 0.999;
-			} else {
-				this.vy += 0.001 * dt;
+			// TODO: collision
+			if (this.y + this.radius >= game.height || this.y - this.radius <= 0) {
+				if (Math.abs(this.vy) > 0.001 * dt) {
+					game.particles.registerParticle(new Particle(this.x, this.y, -this.vx, -this.vy, this.radius / 7, "lime", strategy2));
+				}
+				if (this.y + this.radius >= game.height) {
+					this.y = game.height - this.radius;
+				} else {
+					this.y = this.radius;
+				}
+				this.vy = -this.vy * 0.9;
 			}
-			if (this.x + this.radius >= width || this.x - this.radius <= 0) {
-				game.particles.registerParticle(new Particle(this.x, this.y, -this.vx, -this.vy, this.radius / 7, "lime", strategy2));
-				this.vx = -this.vx * 0.999;
+			if (this.x + this.radius >= game.width || this.x - this.radius <= 0) {
+				if (Math.abs(this.vx) > 0.001 * dt) {
+					game.particles.registerParticle(new Particle(this.x, this.y, -this.vx, -this.vy, this.radius / 7, "lime", strategy2));
+				}
+				if (this.x + this.radius >= game.width) {
+					this.x = game.width - this.radius;
+				} else {
+					this.x = this.radius;
+				}
+				this.vx = -this.vx * 0.9;
 			}
 		}
 	};
@@ -65,12 +79,16 @@ class Game {
 		this.layer_game = document.getElementById("game-layer");
 		this.layer_background = document.getElementById("background-layer");
 
-		this.width = this.layer_game.width;
-		this.height = this.layer_game.height;
-
 		this.ui = this.layer_ui.getContext("2d");
 		this.ctx = this.layer_game.getContext("2d");
 		this.bg = this.layer_background.getContext("2d");
+
+		this.fit();
+	}
+
+	fit() {
+		this.width = this.layer_game.width;
+		this.height = this.layer_game.height;
 	}
 
 	update(timestamp) {
@@ -80,7 +98,7 @@ class Game {
 
 		for (const dt = 10; this.accumulateTime >= dt; this.accumulateTime -= dt) {
 			const t = this.previousTimestamp + dt;
-			this.ball.updateMomentum(t, dt, this.width, this.height);
+			this.ball.update(t, dt);
 			this.particles.update(t, dt);
 			this.previousTimestamp = t;
 		}
@@ -99,16 +117,33 @@ class Game {
 let raf;
 let game;
 
+function _fit() {
+	const width = window.innerWidth;
+	const height = window.innerHeight;
+
+	let layer_ui = document.getElementById("ui-layer");
+	let layer_game = document.getElementById("game-layer");
+	let layer_background = document.getElementById("background-layer");
+
+	layer_ui.width = width;
+	layer_ui.height = height;
+	layer_game.width = width;
+	layer_game.height = height;
+	layer_background.width = width;
+	layer_background.height = height;
+}
+
 function _step(timestamp) {
-	if (game === undefined) {
-		game = new Game(timestamp);
-	}
 	if (game.update(timestamp)) {
 		raf = window.requestAnimationFrame(_step);
 	}
 }
 
 function _run() {
+	_fit();
+	if (game === undefined) {
+		game = new Game(performance.now());
+	}
 	raf = window.requestAnimationFrame(_step);
 }
 
@@ -116,4 +151,10 @@ function _break() {
 	window.cancelAnimationFrame(raf);
 }
 
+function _resize() {
+	_fit();
+	game.fit();
+}
+
 window.drawGame = _run;
+window.onresize = _resize;
