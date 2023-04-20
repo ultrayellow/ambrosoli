@@ -1,6 +1,8 @@
 export class Particle {
 	id;
 
+	type;
+
 	x;
 	y;
 
@@ -12,8 +14,9 @@ export class Particle {
 
 	strategy;
 
-	constructor(x, y, vx, vy, radius, color, strategy) {
+	constructor(type, x, y, vx, vy, radius, color, strategy) {
 		this.id = 0;
+		this.type = type;
 		this.x = x;
 		this.y = y;
 		this.vx = vx;
@@ -24,11 +27,35 @@ export class Particle {
 	}
 
 	draw(ctx) {
-		ctx.beginPath();
-		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-		ctx.closePath();
-		ctx.fillStyle = this.color;
-		ctx.fill();
+		switch (this.type) {
+			// circle
+			case 0:
+				ctx.beginPath();
+				ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
+				ctx.closePath();
+				ctx.fillStyle = this.color;
+				ctx.fill();
+				break;
+			// star
+			case 1:
+				ctx.save();
+				ctx.translate(this.x, this.y);
+				ctx.fillStyle = this.color;
+				ctx.beginPath();
+				ctx.moveTo(this.radius, 0);
+				for (let i = 0; i < 9; i++) {
+					ctx.rotate(Math.PI / 5);
+					if (i % 2 === 0) {
+						ctx.lineTo((this.radius / 0.525731) * 0.200811, 0);
+					} else {
+						ctx.lineTo(this.radius, 0);
+					}
+				}
+				ctx.closePath();
+				ctx.fill();
+				ctx.restore();
+				break;
+		}
 	}
 
 	update(t, dt) {
