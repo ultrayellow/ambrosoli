@@ -1,5 +1,5 @@
 export class Particle {
-	id;
+	id = 0;
 
 	type;
 
@@ -15,7 +15,6 @@ export class Particle {
 	strategy;
 
 	constructor(type, x, y, vx, vy, radius, color, strategy) {
-		this.id = 0;
 		this.type = type;
 		this.x = x;
 		this.y = y;
@@ -24,6 +23,12 @@ export class Particle {
 		this.radius = radius;
 		this.color = color;
 		this.strategy = strategy;
+	}
+
+	update(t, dt) {
+		this.x += this.vx * dt;
+		this.y += this.vy * dt;
+		return this.strategy?.update(this, t, dt) ?? true;
 	}
 
 	draw(ctx) {
@@ -56,12 +61,6 @@ export class Particle {
 				ctx.restore();
 				break;
 		}
-	}
-
-	update(t, dt) {
-		this.x += this.vx * dt;
-		this.y += this.vy * dt;
-		return this.strategy?.update(this, t, dt) ?? true;
 	}
 }
 

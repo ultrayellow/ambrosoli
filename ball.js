@@ -9,14 +9,6 @@ export class Ball {
 	radius = 25;
 	color = "blue";
 
-	draw(ctx) {
-		ctx.beginPath();
-		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
-		ctx.closePath();
-		ctx.fillStyle = this.color;
-		ctx.fill();
-	}
-
 	update(game, t, dt) {
 		let strategy1 = new DisappearParticleStrategy(0.99);
 		let strategy2 = new DelayedDisappearParticleStrategy(0.95, 200);
@@ -40,7 +32,7 @@ export class Ball {
 			} else {
 				this.y = this.radius;
 			}
-			this.vy = -this.vy * .999;
+			this.vy = -this.vy * .9;
 		}
 		if (this.x + this.radius >= game.width || this.x - this.radius <= 0) {
 			if (Math.abs(this.vx) > 0.001 * dt) {
@@ -53,7 +45,15 @@ export class Ball {
 			} else {
 				this.x = this.radius;
 			}
-			this.vx = -this.vx * .999;
+			this.vx = -this.vx * .9;
 		}
+	}
+
+	draw(ctx) {
+		ctx.beginPath();
+		ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
+		ctx.closePath();
+		ctx.fillStyle = this.color;
+		ctx.fill();
 	}
 }
