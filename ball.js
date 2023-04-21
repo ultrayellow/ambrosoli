@@ -29,7 +29,6 @@ export class Ball {
 		this.y += this.vy * dt;
 
 		// TODO: collision
-		console.log(`x=${this.x}, y=${this.y}, vx=${this.vx}, vy=${this.vy}`);
 		if (this.y + this.radius >= game.height || this.y - this.radius <= 0) {
 			if (Math.abs(this.vy) > 0.001 * dt) {
 				for (let i = 0; i < 11; i++) {
