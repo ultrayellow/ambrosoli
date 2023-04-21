@@ -1,3 +1,6 @@
+import { Particle } from "./particle.js"
+import { DisappearParticleStrategy, DelayedDisappearParticleStrategy } from "./particle.js"
+
 export class GravityObject {
 	id = 0;
 
@@ -39,6 +42,10 @@ export class GravityObject {
 		if (this.pinned) {
 			return;
 		}
+
+		let strategy1 = new DisappearParticleStrategy(0.99);
+		let strategy2 = new DelayedDisappearParticleStrategy(0.95, 200);
+
 		let ax = 0;
 		let ay = 0;
 		for (const [k, v] of pool.objects) {
@@ -47,6 +54,10 @@ export class GravityObject {
 				const dy = v.y - this.y;
 				const distanceSq = dx ** 2 + dy ** 2;
 				if (distanceSq <= (this.radius + v.radius) ** 2) {
+					for (let i = 0; i < 11; i++) {
+						game.particles.registerParticle(new Particle(1, this.x, this.y, -this.vx + (0.5 - Math.random()), -this.vy + (0.5 - Math.random()), this.radius / 7, "lime", strategy2));
+					}
+
 					const cx = this.x - this.radius * dx / (this.radius + v.radius);
 					const cy = this.y - this.radius * dy / (this.radius + v.radius);
 
@@ -75,6 +86,9 @@ export class GravityObject {
 				ay += g * dy;
 			}
 		}
+		game.particles.registerParticle(new Particle(0, this.x, this.y, this.vx / 5, this.vy / 5, this.radius / 2, "red", strategy1));
+		game.particles.registerParticle(new Particle(0, this.x, this.y, this.vx / 3, this.vy / 3, this.radius / 3, "#faa", strategy1));
+		game.particles.registerParticle(new Particle(0, this.x, this.y, this.vx / 2, this.vy / 2, this.radius / 5, "#fee", strategy1));
 		this.vx += ax * dt;
 		this.vy += ay * dt;
 		this.x += this.vx * dt;
